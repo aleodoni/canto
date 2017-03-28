@@ -58,6 +58,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     # custom users app
     'canto.users.apps.UsersConfig',
+    'canto.cadastro.apps.CadastroConfig',
     # Your stuff: custom apps go here
 ]
 
