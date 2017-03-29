@@ -6,6 +6,7 @@ volumes:
 
 services:
   postgres:
+    restart: always
     build: ./compose/postgres
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
@@ -29,8 +30,3 @@ services:
       - "8000:8000"
     links:
       - postgres
-
-
-
-
-

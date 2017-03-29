@@ -1,9 +1,9 @@
 from django.apps import AppConfig
 
 
-class UsersConfig(AppConfig):
-    name = 'canto.users'
-    verbose_name = "Users"
+class CadastroConfig(AppConfig):
+    name = 'canto.cadastro'
+    verbose_name = "Cadastro"
 
     def ready(self):
         """Override this to put in:
