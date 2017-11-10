@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Contas de Entrada{% endblock %}
+
+{% block content %}
+	<div class="panel panel-primary">
+        <div class="panel-heading">Contas de Entrada cadastradas</div>
+        <div class="panel-body">
+        	<div class="row">
+                <div class="col-sm-12">
+                	<table id="tentradas" class="table table-striped table-hover table-bordered fonteTable" width="100%" cellspacing="0"></table>
+                </div>
+            </div>
+        </div>
+	</div>
+
+    <div class="panel panel-primary">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <button type="button" class="btn btn-primary" onclick="javascript:novaEntrada();">Criar Entrada</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="confirmaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="exampleModalLabel">Confirma exclusão ?</h4>
+          </div>
+          <div class="modal-body">
+            <h4>Conta de Entrada: <span id="nome" name="nome"/></h4>
+            <form class="exclui" method="POST" action="/cadastro/entrada/delete/">{% csrf_token %}
+              <div class="form-group">
+                <input type="hidden" name="pk" id="pk" />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="submit">Confirmar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block extra_javascript %}
+<script>
+    var tableEntradas;
+    
+    $(document).ready(function() {
+
+        $("button#submit").click(function() {
+            exclui();
+            $("#confirmaModal").modal('hide');
+        })
+
+        tableEntradas = $('#tentradas').DataTable({
+            responsive: true,
+            "columns": [
+                {
+                    title: "id" ,
+                    data: 'id'
+                },
+                {
+                    title: "Nome",
+                    data: 'nome', 
+                    render: function(data, type, full, meta) {
+                        return '<a href="/cadastro/entrada/edit/' + full.id + '/">'+ data + '</a>';
+                    }
+                    
+                },
+
+            ],
+            "columnDefs": [
+                {
+                    "targets": [0],
+                    "visible": false,
+                },
+                {
+                    "targets": [1],
+                    "visible": true,
+                },
+                {
+                    "targets": [2],
+                    "visible": true,
+                    "className": "dt-center",
+                    "data": null,
+                    render: function(data, type, full, meta) {
+                        return '<a href="" data-toggle="modal" data-target="#confirmaModal" data-id="' + full.id + '" data-nome="' + full.nome + '"><i class="fa fa-trash" aria-hidden="true" style="color:red;"></i></a>';
+                    }
+                },
+            ],
+            "language": {
+                "info": "Páginas _PAGE_ de _PAGES_",
+                "emptyTable": "Sem contas de entrada cadastradas",
+                "decimal": ",",
+                "thousands": ".",
+                "oPaginate": {
+                    "sFirst": '<span class="glyphicon glyphicon-fast-backward"></span>',
+                    "sLast": '<span class="glyphicon glyphicon-fast-forward"></span>',
+                    "sNext": '<span class="glyphicon glyphicon-forward"></span>',
+                    "sPrevious": '<span class="glyphicon glyphicon-backward"></span>'
+                }
+            },
+            "bPaginate" : true,
+            "bLengthChange": false,
+            "bFilter": true,
+            "bInfo": false,
+            "ajax": {
+                "url": "/api/entradas/",
+                "dataSrc": "",
+            },
+            "sDom": '<"top"i>rt<"bottom"lp><"clear">',
+        });
+
+        $('#confirmaModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var pk = button.data('id');
+            var recipient = button.data('nome');
+            var modal = $(this);
+            modal.find('#pk').val(pk);
+            modal.find('#nome').html(recipient);
+        });
+    });
+
+    function exclui() {
+        request_url = '/api/entrada/delete/' + $('#pk').val();
+
+        $.ajax({
+            url: request_url,
+            type: 'POST',
+            accepts: 'application/json',
+            dataType: 'json',
+            data: $('form.exclui').serialize(),
+            success: function(result){
+                console.log($('form.exclui').serialize());
+                tableEntradas.ajax.reload(null, false);
+            },
+            error: function(xhr, status, error) {
+                console.log(status);
+                console.log(error);
+                console.log(xhr);
+            }
+        })
+    }
+
+
+
+    function novaEntrada() {
+        location.href = '/cadastro/entrada/new/';
+    }
+</script>
+{% endblock %}

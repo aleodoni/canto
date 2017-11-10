@@ -21,3 +21,56 @@ class Funcionario(models.Model):
 
 	def __str__(self):
 		return self.nome
+
+@python_2_unicode_compatible
+class Entrada(models.Model):
+	nome = models.CharField(max_length=300)
+
+	def __unicode__(self):
+		return self.nome
+
+	def __str__(self):
+		return self.nome		
+
+@python_2_unicode_compatible
+class SaidaGrupo(models.Model):
+
+	class Meta:
+		verbose_name_plural = 'Contas de Saída - Grupos'		
+		verbose_name = 'Conta de Saída - Grupo'	
+
+	nome = models.CharField(max_length=300)
+
+	def __unicode__(self):
+		return self.nome
+
+	def __str__(self):
+		return self.nome				
+
+@python_2_unicode_compatible
+class SaidaSubgrupo(models.Model):
+
+	class Meta:
+		verbose_name_plural = 'Saída - Subgrupos'		
+		verbose_name = 'Subgrupo'	
+
+	nome = models.CharField(max_length=300)
+	grupo = models.ForeignKey(SaidaGrupo)
+
+	def __unicode__(self):
+		return self.nome
+
+	def __str__(self):
+		return self.nome				
+
+@python_2_unicode_compatible
+class Saida(models.Model):
+	nome = models.CharField(max_length=300)
+	grupo = models.ForeignKey(SaidaGrupo)
+	subgrupo = models.ForeignKey(SaidaSubgrupo)	
+
+	def __unicode__(self):
+		return self.nome
+
+	def __str__(self):
+		return self.nome				

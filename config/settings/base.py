@@ -48,7 +48,10 @@ DJANGO_APPS = [
     'django.contrib.admin',
 ]
 THIRD_PARTY_APPS = [
+    'pipeline',
+    'djangobower',
     'crispy_forms',  # Form layouts
+    'compressor',
 ]
 
 # Apps specific for this project go here.
@@ -185,12 +188,15 @@ STATIC_URL = '/static/'
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = [
     str(APPS_DIR.path('static')),
+    str(ROOT_DIR.path('components/bower_components')),
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+    'pipeline.finders.PipelineFinder',
 ]
 
 # MEDIA CONFIGURATION
@@ -251,21 +257,21 @@ AUTHENTICATION_BACKENDS = [
 #LOGIN_URL = 'account_login'
 
 # SLUGLIFIER
-AUTOSLUG_SLUGIFY_FUNCTION = 'slugify.slugify'
+#AUTOSLUG_SLUGIFY_FUNCTION = 'slugify.slugify'
 
 ########## CELERY
-INSTALLED_APPS += ['canto.taskapp.celery.CeleryConfig']
+#INSTALLED_APPS += ['canto.taskapp.celery.CeleryConfig']
 # if you are not using the django database broker (e.g. rabbitmq, redis, memcached), you can remove the next line.
-INSTALLED_APPS += ['kombu.transport.django']
-BROKER_URL = env('CELERY_BROKER_URL', default='django://')
-if BROKER_URL == 'django://':
-    CELERY_RESULT_BACKEND = 'redis://'
-else:
-    CELERY_RESULT_BACKEND = BROKER_URL
+#INSTALLED_APPS += ['kombu.transport.django']
+#BROKER_URL = env('CELERY_BROKER_URL', default='django://')
+#if BROKER_URL == 'django://':
+#    CELERY_RESULT_BACKEND = 'redis://'
+#else:
+#    CELERY_RESULT_BACKEND = BROKER_URL
 ########## END CELERY
 # django-compressor
 # ------------------------------------------------------------------------------
-INSTALLED_APPS += ['compressor']
+#INSTALLED_APPS += ['compressor']
 STATICFILES_FINDERS += ['compressor.finders.CompressorFinder']
 
 # Location of root django.contrib.admin URL, use {% url 'admin:index' %}
@@ -273,3 +279,63 @@ ADMIN_URL = r'^admin/'
 
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
+
+BOWER_COMPONENTS_ROOT = str(ROOT_DIR.path('components'))
+BOWER_INSTALLED_APPS = (
+    'jquery',
+    'underscore',
+    'bootstrap',
+    'jasny-bootstrap',
+    'datatables',
+    'datatables-bootstrap3',
+    'vue',
+    'vue-strap',
+    'vue-resource',
+    'fontawesome',
+    'bootstrap-select'
+)
+
+
+# PIPELINE
+# ------------------------------------------------------------------------------
+
+PIPELINE = {
+    'PIPELINE_ENABLED': False,
+    'JS_COMPRESSOR': False,
+    'CSS_COMPRESSOR': False,
+    'STYLESHEETS': {
+        'master': {
+            'source_filenames': (
+              'bootstrap/dist/css/bootstrap.css',
+              'jasny-bootstrap/dist/css/jasny-bootstrap.css',
+              'datatables/media/css/jquery.dataTables.css',
+              'datatables/media/css/dataTables.bootstrap.css',
+              'login.css',
+              'font-awesome/css/font-awesome.css',
+              'bootstrap-select/dist/css/bootstrap-select.css',
+            ),
+            'output_filename': 'css/master.css',
+        },
+    },
+    'JAVASCRIPT': {
+        'master': {
+            'source_filenames': (
+              'jquery/dist/jquery.js',
+              'bootstrap/dist/js/bootstrap.js',
+              'jasny-bootstrap/dist/js/jasny-bootstrap.js',
+              'underscore/underscore.js',
+              'datatables/media/js/jquery.dataTables.js',
+              'datatables/media/js/dataTables.bootstrap.js',
+              #'vue/dist/vue.common.js',
+              'vue/dist/vue.js',
+              'bootstrap-select/dist/js/bootstrap-select.js',
+              'vue-strap/dist/vue-strap.js',
+              'vue-strap/dist/vue-strap-lang.js',
+              'vue-resource/dist/vue-resource.js'
+            ),
+            'output_filename': 'js/master.js',
+        }
+    }
+}
+
+STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
