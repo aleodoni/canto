@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase, Client
+from django.test import TestCase, RequestFactory, Client
 from django.contrib.auth import get_user_model
 
 
 from ..models import Funcionario
+from ..views import EntradaIndexView
 
 class FuncionarioAdminViewTest(TestCase):
 
@@ -47,3 +48,21 @@ class FuncionarioAdminViewTest(TestCase):
     	client.login(username='admin', password='admin')
     	response = client.get('/admin/cadastro/funcionario/')
     	self.assertContains(response, '0 funcionarios')
+
+
+class EntradaViewTest(TestCase):
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.user = get_user_model().objects.create_user("zaca", "zaca")
+        self.user.is_staff = True
+        self.user.save()
+
+    def test_index_vazio(self):
+        request = self.factory.get('/cadastro/entrada/')
+        request.user = self.user
+        response = EntradaIndexView.as_view()(request)
+        response.render()
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Contas de Entrada')
+        self.assertContains(response, 'Sem contas de entrada cadastradas')        
